@@ -15,6 +15,15 @@ export default class DiagLogComp extends cc.Component {
         return this._isExactClickCheck;
     };
 
+    @property({
+        tooltip: '是否延迟播放声音'
+    })
+    isDelayPlayAudio: boolean = false;
+    @property({
+        tooltip: '老师半透学生不可见'
+    })
+    stuHideAndTeacherShowShadow: boolean = false;
+
     set isExactClickCheck(value) {
         this._isExactClickCheck = value;
         if (value) {
@@ -41,18 +50,43 @@ export default class DiagLogComp extends cc.Component {
         }
     }
 
-
     btnClick(sender: cc.Node) {
-        sender.children.forEach(child => {
-            child.opacity = 255;
-        })
-        if (sender.getComponentInChildren(cc.AudioSource)) {
-            sender.getComponentInChildren(cc.AudioSource).play();
-            return
+        if (!this.isDelayPlayAudio) {
+            sender.children.forEach(child=>{
+                child.opacity = 255;
+            })
+            if (sender.getComponentInChildren(cc.AudioSource)) {
+                sender.getComponentInChildren(cc.AudioSource).play();
+                return
+            }
+            if (sender.getComponent(cc.AudioSource)) {
+                sender.getComponent(cc.AudioSource).play();
+                return
+            }
+            if (this.stuHideAndTeacherShowShadow) {
+                sender.opacity = 255;
+            }
+        }else {
+            if (this.stuHideAndTeacherShowShadow && sender.opacity != 255) {
+                sender.opacity = 255;
+                return;
+            }
+            if (sender.children.filter(child=>{return child.opacity != 255}).length > 0) {
+                sender.children.forEach(child=>{
+                    child.opacity = 255;
+                })
+            }else {
+                if (sender.getComponentInChildren(cc.AudioSource)) {
+                    sender.getComponentInChildren(cc.AudioSource).play();
+                    return
+                }
+                if (sender.getComponent(cc.AudioSource)) {
+                    sender.getComponent(cc.AudioSource).play();
+                    return
+                }
+            }
         }
-        if (sender.getComponent(cc.AudioSource)) {
-            sender.getComponent(cc.AudioSource).play();
-            return
-        }
+       
     }
+}
 }
